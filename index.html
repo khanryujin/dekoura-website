@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Dekoura | Influencer Marketing Agency</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&amp;family=Lato:wght@300;400;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+    
+    <!-- Firebase SDKs (Optional: Setup your own project to make this real) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        // --- CONFIGURATION START ---
+        // If you create your own Firebase project later, paste your config here:
+        const YOUR_FIREBASE_CONFIG = null; 
+        // Example: { apiKey: "...", authDomain: "...", projectId: "..." }
+        // --- CONFIGURATION END ---
+
+        window.db = null;
+        window.auth = null;
+
+        const initFirebase = async () => {
+            if (!YOUR_FIREBASE_CONFIG) {
+                console.log("Running in Simulation Mode (No Database Connected)");
+                return;
+            }
+            try {
+                const app = initializeApp(YOUR_FIREBASE_CONFIG);
+                window.auth = getAuth(app);
+                window.db = getFirestore(app);
+                await signInAnonymously(window.auth);
+                console.log("Connected to Real Database");
+            } catch (error) {
+                console.error("Firebase init error:", error);
+            }
+        };
+
+        initFirebase();
+
+        window.handleFormSubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            const form = document.getElementById('contact-form');
+            const originalText = btn.innerText;
+            
+            // UI Loading State
+            btn.disabled = true;
+            btn.innerText = "PLANTING SEEDS...";
+            btn.classList.add('opacity-75', 'cursor-not-allowed');
+
+            // Simulate delay for realism
+            await new Promise(r => setTimeout(r, 1500));
+
+            try {
+                if (window.db) {
+                    // Real Database Save
+                    await addDoc(collection(window.db, 'inquiries'), {
+                        name: document.getElementById('name').value,
+                        email: document.getElementById('email').value,
+                        interest: document.getElementById('interest').value,
+                        message: document.getElementById('message').value,
+                        timestamp: serverTimestamp()
+                    });
+                } else {
+                    // Simulation Mode (GitHub Pages default)
+                    console.log("Form submitted in simulation mode");
+                }
+                
+                showToast("Inquiry received! We'll be in touch.", "success");
+                form.reset();
+
+            } catch (error) {
+                console.error("Error:", error);
+                showToast("Connection error. Please try again.", "error");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = originalText;
+                btn.classList.remove('opacity-75', 'cursor-not-allowed');
+            }
+        };
+    </script>
+
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#2F5242", // Forest Green
+                        secondary: "#C8A86B", // Gold/Bronze
+                        "background-light": "#F9F7F2", // Light Cream
+                        "background-dark": "#1A201C", // Dark Charcoal
+                        "surface-light": "#FFFFFF",
+                        "surface-dark": "#262F2B",
+                        "text-light": "#2F5242",
+                        "text-dark": "#EDE8D5",
+                    },
+                    fontFamily: {
+                        display: ["Playfair Display", "serif"],
+                        body: ["Lato", "sans-serif"],
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #F9F7F2; }
+        .dark ::-webkit-scrollbar-track { background: #1A201C; }
+        ::-webkit-scrollbar-thumb { background: #C8A86B; border-radius: 4px; }
+        
+        /* Animation Utilities */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        
+        /* Modal Transitions */
+        .modal {
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+        .modal-content {
+            transform: scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark font-body transition-colors duration-300 antialiased overflow-x-hidden selection:bg-secondary selection:text-white">
+
+<!-- Navigation -->
+<nav class="fixed w-full z-50 transition-all duration-300 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md border-b border-secondary/20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-20">
+            <!-- Logo -->
+            <div class="flex-shrink-0 flex items-center gap-3 cursor-pointer" onclick="window.scrollTo(0,0)">
+                <span class="font-display text-2xl font-bold tracking-widest text-primary dark:text-secondary">DEKOURA</span>
+            </div>
+            
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex items-center space-x-8">
+                <a class="text-sm uppercase tracking-widest hover:text-secondary transition-colors font-semibold cursor-pointer" onclick="smoothScroll('mission')">Mission</a>
+                <a class="text-sm uppercase tracking-widest hover:text-secondary transition-colors font-semibold cursor-pointer" onclick="smoothScroll('services')">Services</a>
+                <a class="text-sm uppercase tracking-widest hover:text-secondary transition-colors font-semibold cursor-pointer" onclick="smoothScroll('why-us')">Why Us</a>
+                <a class="text-sm uppercase tracking-widest text-secondary hover:text-primary dark:hover:text-white transition-colors font-bold cursor-pointer" onclick="smoothScroll('contact')">Contact</a>
+                
+                <!-- Dark Mode Toggle -->
+                <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-surface-dark transition-colors">
+                    <span id="theme-icon" class="material-icons-outlined text-xl">dark_mode</span>
+                </button>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <div class="md:hidden flex items-center gap-4">
+                <button onclick="toggleTheme()" class="p-2">
+                    <span id="theme-icon-mobile" class="material-icons-outlined text-xl">dark_mode</span>
+                </button>
+                <button onclick="toggleMobileMenu()" class="text-primary dark:text-secondary">
+                    <span class="material-icons-outlined text-3xl">menu</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mobile Menu Dropdown -->
+    <div id="mobile-menu" class="hidden md:hidden bg-background-light dark:bg-background-dark border-b border-secondary/20">
+        <div class="px-4 pt-2 pb-6 space-y-2">
+            <a class="block px-3 py-4 text-base font-medium uppercase tracking-wider hover:text-secondary border-b border-gray-100 dark:border-gray-800" onclick="smoothScroll('mission'); toggleMobileMenu()">Mission</a>
+            <a class="block px-3 py-4 text-base font-medium uppercase tracking-wider hover:text-secondary border-b border-gray-100 dark:border-gray-800" onclick="smoothScroll('services'); toggleMobileMenu()">Services</a>
+            <a class="block px-3 py-4 text-base font-medium uppercase tracking-wider hover:text-secondary border-b border-gray-100 dark:border-gray-800" onclick="smoothScroll('why-us'); toggleMobileMenu()">Why Us</a>
+            <a class="block px-3 py-4 text-base font-bold text-secondary uppercase tracking-wider" onclick="smoothScroll('contact'); toggleMobileMenu()">Contact</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="relative min-h-screen flex flex-col justify-center items-center text-center pt-20 overflow-hidden">
+    <div class="absolute inset-0 z-0">
+        <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/5 rounded-full blur-[100px] dark:bg-secondary/10"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-secondary/10 rounded-full blur-[100px] dark:bg-primary/20"></div>
+        <div class="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none" style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%232F5242\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
+    </div>
+    
+    <div class="relative z-10 max-w-4xl px-6 flex flex-col items-center">
+        <!-- Logo Image -->
+        <div class="mb-8 w-48 h-48 md:w-64 md:h-64 relative animate-float">
+             <!-- Using a reliable placeholder if the original URL breaks, or stick to original if it works. I'll use a style to create a backup circle -->
+             <div class="w-full h-full rounded-full bg-surface-light shadow-2xl flex items-center justify-center overflow-hidden border-4 border-white/50 dark:border-surface-dark/50">
+                <img 
+                    alt="Dekoura Tree Logo Emblem" 
+                    class="w-full h-full object-cover" 
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCsapHPBfpT8vfF7Um4vX_8K4j3lbiLXl7X4Qpc_QKH_fo9Zv1JL4v6rycI-dwipfcZ_AAdsNuVQsUc1PFTkZeo0LJM4pLpfAtsIyS2loyo_9k3uC8uM97_KXLPvUpWGC2-UdvMSy0RYZs-nnU7X2AX_-Drez_Mn1YfuZv8S7bWy56D6lLIuEQwtEKvLz1od_SQuCxp93KsqV_Q_d5ZGBA25_YeyqQnAcEhS6iIzTPVxeLK9TrEGu6T-XMgRAndmUWXjw4zrNMMKxRN"
+                    onerror="this.src='https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'; this.classList.add('opacity-80')"
+                />
+             </div>
+        </div>
+
+        <h1 class="font-display text-5xl md:text-7xl font-bold text-primary dark:text-white mb-6 leading-tight">
+            Rooted in <span class="italic text-secondary">Influence</span>.
+        </h1>
+        <p class="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mb-10 font-light leading-relaxed">
+            We cultivate authentic connections between brands and creators. Like a strong ecosystem, we nurture growth that lasts.
+        </p>
+        
+        <div class="flex flex-col sm:flex-row gap-4">
+            <button onclick="smoothScroll('contact')" class="px-8 py-4 bg-primary text-white text-sm uppercase tracking-widest font-semibold rounded-full shadow-lg hover:bg-opacity-90 transition-all transform hover:-translate-y-1 hover:shadow-xl border border-transparent">
+                Plant Your Seed
+            </button>
+            <button onclick="smoothScroll('mission')" class="px-8 py-4 bg-transparent text-primary dark:text-secondary border border-primary dark:border-secondary text-sm uppercase tracking-widest font-semibold rounded-full hover:bg-primary hover:text-white dark:hover:bg-secondary dark:hover:text-primary transition-all">
+                Our Philosophy
+            </button>
+        </div>
+    </div>
+    
+    <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce text-primary dark:text-secondary cursor-pointer" onclick="smoothScroll('mission')">
+        <span class="material-icons-outlined text-3xl">arrow_downward</span>
+    </div>
+</section>
+
+<!-- Mission Section -->
+<section id="mission" class="py-24 bg-surface-light dark:bg-surface-dark relative">
+    <div class="max-w-5xl mx-auto px-6 text-center">
+        <span class="text-secondary uppercase tracking-[0.2em] text-xs font-bold mb-4 block">Our Mission</span>
+        <h2 class="font-display text-3xl md:text-4xl text-primary dark:text-white mb-8">Growth Through Authenticity</h2>
+        <div class="h-1 w-20 bg-secondary mx-auto mb-10 rounded-full"></div>
+        <p class="text-xl md:text-2xl text-gray-700 dark:text-gray-300 font-display italic leading-relaxed">
+            "At Dekoura, we believe influencer marketing isn't just about reach—it's about roots. We dig deep to understand your brand's core values, connecting you with creators who naturally align with your vision. We don't just chase trends; we build forests of loyal advocates."
+        </p>
+    </div>
+</section>
+
+<!-- Why Us Section -->
+<section id="why-us" class="py-24 bg-background-light dark:bg-background-dark">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16">
+            <h2 class="font-display text-4xl text-primary dark:text-white mb-4">Why Dekoura?</h2>
+            <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">We are a boutique agency specializing in sustainable growth and deep-rooted partnerships.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Card 1 -->
+            <div class="group bg-surface-light dark:bg-surface-dark p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+                <div class="w-14 h-14 bg-background-light dark:bg-background-dark rounded-full flex items-center justify-center mb-6 text-secondary group-hover:text-primary dark:group-hover:text-white transition-colors">
+                    <span class="material-icons-outlined text-3xl">spa</span>
+                </div>
+                <h3 class="font-display text-2xl text-primary dark:text-white mb-3">Niche Expertise</h3>
+                <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
+                    We don't do generic. We specialize in lifestyle, wellness, and sustainable brands where authenticity is the currency. We know the soil these creators grow in.
+                </p>
+            </div>
+            
+            <!-- Card 2 -->
+            <div class="group bg-surface-light dark:bg-surface-dark p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+                <div class="w-14 h-14 bg-background-light dark:bg-background-dark rounded-full flex items-center justify-center mb-6 text-secondary group-hover:text-primary dark:group-hover:text-white transition-colors">
+                    <span class="material-icons-outlined text-3xl">fingerprint</span>
+                </div>
+                <h3 class="font-display text-2xl text-primary dark:text-white mb-3">Personalized Service</h3>
+                <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
+                    You aren't just another account. As a boutique agency, we offer white-glove service, hand-selecting every influencer and crafting bespoke strategies for your unique DNA.
+                </p>
+            </div>
+            
+            <!-- Card 3 -->
+            <div class="group bg-surface-light dark:bg-surface-dark p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+                <div class="w-14 h-14 bg-background-light dark:bg-background-dark rounded-full flex items-center justify-center mb-6 text-secondary group-hover:text-primary dark:group-hover:text-white transition-colors">
+                    <span class="material-icons-outlined text-3xl">psychology</span>
+                </div>
+                <h3 class="font-display text-2xl text-primary dark:text-white mb-3">Data-Driven Roots</h3>
+                <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
+                    Our intuition is guided by nature, but backed by data. We analyze engagement depth, audience sentiment, and conversion potential to ensure your investment bears fruit.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Services Section (Interactive) -->
+<section id="services" class="py-24 bg-primary text-white relative overflow-hidden">
+    <!-- Abstract BG Shape -->
+    <div class="absolute top-0 right-0 w-96 h-96 opacity-10 pointer-events-none transform rotate-45 translate-x-1/2 -translate-y-1/2">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <path d="M45.7,-70.5C58.9,-62.5,69.3,-49.6,75.9,-35.1C82.5,-20.6,85.4,-4.5,82.4,10.2C79.4,24.9,70.6,38.2,59.8,49.1C49,60,36.2,68.5,22.3,72.5C8.4,76.5,-6.6,76,-20.7,71.7C-34.8,67.4,-48,59.3,-58.5,48.4C-69,37.5,-76.8,23.8,-79.1,9.2C-81.4,-5.4,-78.2,-20.9,-69.6,-33.5C-61,-46.1,-47,-55.8,-32.9,-63.3C-18.8,-70.8,-4.6,-76.1,10.2,-74.8C25,-73.5,40,-65.6,45.7,-70.5Z" fill="#C8A86B" transform="translate(100 100)"></path>
+        </svg>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-6 relative z-10">
+        <div class="flex flex-col md:flex-row items-start justify-between mb-16">
+            <div class="md:w-1/2 mb-8 md:mb-0">
+                <span class="text-secondary uppercase tracking-[0.2em] text-xs font-bold mb-4 block">What We Do</span>
+                <h2 class="font-display text-4xl md:text-5xl text-white">Cultivating Success</h2>
+            </div>
+            <div class="md:w-1/2 md:pl-10">
+                <p class="text-gray-300 text-lg font-light">From seedling ideas to full-canopy campaigns, we manage the entire lifecycle of your influencer marketing strategy. Click a service to learn more.</p>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <!-- Service 1 -->
+            <div onclick="openServiceModal('strategy')" class="group border-b border-white/20 pb-8 hover:border-secondary transition-colors cursor-pointer">
+                <div class="flex flex-col md:flex-row md:items-center justify-between">
+                    <div class="flex items-center gap-6">
+                        <span class="text-secondary font-display text-3xl">01</span>
+                        <h3 class="font-display text-3xl md:text-4xl group-hover:text-secondary transition-colors">Campaign Strategy</h3>
+                    </div>
+                    <p class="mt-4 md:mt-0 max-w-md text-gray-300 font-light text-sm md:text-base opacity-70 md:opacity-100 transition-opacity">
+                        Developing a roadmap that aligns with your brand's seasonal goals and long-term vision.
+                    </p>
+                    <span class="material-icons-outlined text-4xl opacity-0 group-hover:opacity-100 transform translate-x-[-20px] group-hover:translate-x-0 transition-all text-secondary hidden md:block">arrow_forward</span>
+                </div>
+            </div>
+
+            <!-- Service 2 -->
+            <div onclick="openServiceModal('curating')" class="group border-b border-white/20 pb-8 hover:border-secondary transition-colors cursor-pointer">
+                <div class="flex flex-col md:flex-row md:items-center justify-between">
+                    <div class="flex items-center gap-6">
+                        <span class="text-secondary font-display text-3xl">02</span>
+                        <h3 class="font-display text-3xl md:text-4xl group-hover:text-secondary transition-colors">Influencer Curating</h3>
+                    </div>
+                    <p class="mt-4 md:mt-0 max-w-md text-gray-300 font-light text-sm md:text-base opacity-70 md:opacity-100 transition-opacity">
+                        Hand-picking creators whose roots align with yours, ensuring authentic storytelling.
+                    </p>
+                    <span class="material-icons-outlined text-4xl opacity-0 group-hover:opacity-100 transform translate-x-[-20px] group-hover:translate-x-0 transition-all text-secondary hidden md:block">arrow_forward</span>
+                </div>
+            </div>
+
+            <!-- Service 3 -->
+            <div onclick="openServiceModal('contract')" class="group border-b border-white/20 pb-8 hover:border-secondary transition-colors cursor-pointer">
+                <div class="flex flex-col md:flex-row md:items-center justify-between">
+                    <div class="flex items-center gap-6">
+                        <span class="text-secondary font-display text-3xl">03</span>
+                        <h3 class="font-display text-3xl md:text-4xl group-hover:text-secondary transition-colors">Contract & Negotiation</h3>
+                    </div>
+                    <p class="mt-4 md:mt-0 max-w-md text-gray-300 font-light text-sm md:text-base opacity-70 md:opacity-100 transition-opacity">
+                        Handling the details so you can focus on the big picture. Fair, transparent, and secure.
+                    </p>
+                    <span class="material-icons-outlined text-4xl opacity-0 group-hover:opacity-100 transform translate-x-[-20px] group-hover:translate-x-0 transition-all text-secondary hidden md:block">arrow_forward</span>
+                </div>
+            </div>
+
+            <!-- Service 4 -->
+            <div onclick="openServiceModal('analysis')" class="group border-b border-white/20 pb-8 hover:border-secondary transition-colors cursor-pointer">
+                <div class="flex flex-col md:flex-row md:items-center justify-between">
+                    <div class="flex items-center gap-6">
+                        <span class="text-secondary font-display text-3xl">04</span>
+                        <h3 class="font-display text-3xl md:text-4xl group-hover:text-secondary transition-colors">Performance Analysis</h3>
+                    </div>
+                    <p class="mt-4 md:mt-0 max-w-md text-gray-300 font-light text-sm md:text-base opacity-70 md:opacity-100 transition-opacity">
+                        Measuring the harvest. Detailed reporting on ROI, reach, and community impact.
+                    </p>
+                    <span class="material-icons-outlined text-4xl opacity-0 group-hover:opacity-100 transform translate-x-[-20px] group-hover:translate-x-0 transition-all text-secondary hidden md:block">arrow_forward</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Section (Connected to DB) -->
+<section id="contact" class="py-24 bg-background-light dark:bg-background-dark relative">
+    <div class="max-w-6xl mx-auto px-6">
+        <div class="bg-surface-light dark:bg-surface-dark rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-gray-100 dark:border-gray-700">
+            <!-- Left Info Panel -->
+            <div class="md:w-1/2 bg-primary relative p-12 flex flex-col justify-between overflow-hidden">
+                <div class="absolute -top-20 -left-20 w-64 h-64 bg-secondary/20 rounded-full blur-3xl"></div>
+                <div class="absolute bottom-0 right-0 w-full h-full opacity-20 bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')]"></div>
+                
+                <div class="relative z-10">
+                    <h2 class="font-display text-4xl text-white mb-6">Let's Grow Together</h2>
+                    <p class="text-gray-200 font-light mb-8">Ready to plant the seeds for your next campaign? We're currently accepting new clients for Q4.</p>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center text-white/90">
+                            <span class="material-icons-outlined mr-4 text-secondary">email</span>
+                            <span>hello@dekoura.agency</span>
+                        </div>
+                        <div class="flex items-center text-white/90">
+                            <span class="material-icons-outlined mr-4 text-secondary">place</span>
+                            <span>Los Angeles, CA</span>
+                        </div>
+                        <div class="flex items-center text-white/90">
+                            <span class="material-icons-outlined mr-4 text-secondary">eco</span>
+                            <span>1% for the Planet Member</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="relative z-10 mt-12">
+                     <img alt="Golden roots illustration" class="w-32 opacity-80 mix-blend-screen" src="https://lh3.googleusercontent.com/aida-public/AB6AXuALSsqU-CTYB7h4aXsMbtOIr6OOUKsbn-ySrE1LuCsBwE5GYwwYnpL-rlhvh6lYcoplBPrQ94un-_1xV3sd1_uTkGlU4C5xofVt-4wkHXgMNRlmN1WK1AP1FVjWzJAvB-G4Mys7o7ha06e3T5TcSc9RSYxwfeszqOg64up3u92WwfNWXO87v2KV6hSSZzTS-830PYzT2UGepholZLUwRz_2TL6LJGd93VQPq-E_J1JkBZ36wxoTUp8D8LkmXZsAVmLJ1Upn8IMgSyy-"/>
+                </div>
+            </div>
+
+            <!-- Right Form Panel -->
+            <div class="md:w-1/2 p-12 relative">
+                <form id="contact-form" onsubmit="handleFormSubmit(event)" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-2" for="name">Name</label>
+                        <input required class="w-full bg-background-light dark:bg-background-dark border-b-2 border-gray-200 dark:border-gray-600 focus:border-primary dark:focus:border-secondary focus:ring-0 px-4 py-3 outline-none transition-colors text-gray-900 dark:text-white rounded-t-lg" id="name" placeholder="Jane Doe" type="text"/>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-2" for="email">Email</label>
+                        <input required class="w-full bg-background-light dark:bg-background-dark border-b-2 border-gray-200 dark:border-gray-600 focus:border-primary dark:focus:border-secondary focus:ring-0 px-4 py-3 outline-none transition-colors text-gray-900 dark:text-white rounded-t-lg" id="email" placeholder="jane@brand.com" type="email"/>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-2" for="interest">Interested In</label>
+                        <select class="w-full bg-background-light dark:bg-background-dark border-b-2 border-gray-200 dark:border-gray-600 focus:border-primary dark:focus:border-secondary focus:ring-0 px-4 py-3 outline-none transition-colors text-gray-900 dark:text-white rounded-t-lg" id="interest">
+                            <option>Campaign Management</option>
+                            <option>Influencer Sourcing</option>
+                            <option>Strategy Consultation</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-2" for="message">Message</label>
+                        <textarea required class="w-full bg-background-light dark:bg-background-dark border-b-2 border-gray-200 dark:border-gray-600 focus:border-primary dark:focus:border-secondary focus:ring-0 px-4 py-3 outline-none transition-colors text-gray-900 dark:text-white rounded-t-lg" id="message" placeholder="Tell us about your goals..." rows="3"></textarea>
+                    </div>
+                    <button id="submit-btn" class="w-full bg-primary text-white py-4 mt-4 font-bold uppercase tracking-widest hover:bg-secondary transition-colors duration-300 shadow-md flex justify-center items-center gap-2" type="submit">
+                        Send Inquiry
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-primary text-white py-12 border-t border-white/10">
+    <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center">
+        <div class="mb-6 md:mb-0 text-center md:text-left">
+            <span class="font-display text-2xl font-bold tracking-widest text-secondary block mb-2">DEKOURA</span>
+            <p class="text-gray-400 text-sm">© 2024 Dekoura Agency. All rights reserved.</p>
+        </div>
+        <div class="flex space-x-6">
+            <a class="text-gray-400 hover:text-secondary transition-colors" href="#" aria-label="Facebook"><span class="material-icons-outlined">facebook</span></a>
+            <a class="text-gray-400 hover:text-secondary transition-colors" href="#" aria-label="Instagram"><span class="material-icons-outlined">camera_alt</span></a> 
+            <a class="text-gray-400 hover:text-secondary transition-colors" href="#" aria-label="LinkedIn"><span class="material-icons-outlined">work</span></a> 
+        </div>
+    </div>
+</footer>
+
+<!-- Reusable Modal (Hidden by Default) -->
+<div id="service-modal" class="modal fixed inset-0 z-[100] flex items-center justify-center bg-primary/90 backdrop-blur-sm p-4">
+    <div class="modal-content bg-background-light dark:bg-background-dark max-w-2xl w-full rounded-2xl shadow-2xl relative overflow-hidden border border-secondary/20">
+        <!-- Close Button -->
+        <button onclick="closeServiceModal()" class="absolute top-4 right-4 text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-white transition-colors z-20">
+            <span class="material-icons-outlined text-3xl">close</span>
+        </button>
+        
+        <div class="p-8 md:p-12">
+            <span id="modal-subtitle" class="text-secondary uppercase tracking-widest text-xs font-bold block mb-2">Service Details</span>
+            <h3 id="modal-title" class="font-display text-3xl md:text-4xl text-primary dark:text-white mb-6">Service Title</h3>
+            <div class="h-0.5 w-16 bg-secondary mb-6"></div>
+            <p id="modal-description" class="text-gray-600 dark:text-gray-300 leading-relaxed text-lg mb-8">
+                Description goes here...
+            </p>
+            <button onclick="closeServiceModal(); smoothScroll('contact')" class="w-full bg-primary text-white py-3 rounded-lg font-bold uppercase tracking-widest hover:bg-secondary transition-colors">
+                Book Consultation
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="fixed bottom-5 right-5 z-[100] transform translate-y-20 opacity-0 transition-all duration-300 bg-white dark:bg-surface-dark border-l-4 border-secondary shadow-lg rounded-r-lg p-4 flex items-center gap-3">
+    <span id="toast-icon" class="material-icons-outlined text-green-600">check_circle</span>
+    <p id="toast-message" class="text-primary dark:text-white font-semibold">Success message</p>
+</div>
+
+<!-- Interactive Scripts -->
+<script>
+    // --- Mobile Menu Toggle ---
+    function toggleMobileMenu() {
+        const menu = document.getElementById('mobile-menu');
+        menu.classList.toggle('hidden');
+    }
+
+    // --- Smooth Scrolling ---
+    function smoothScroll(id) {
+        const element = document.getElementById(id);
+        if (element) {
+            window.scrollTo({
+                top: element.offsetTop - 80, // Offset for fixed nav
+                behavior: 'smooth'
+            });
+        }
+    }
+
+    // --- Dark Mode Logic ---
+    function toggleTheme() {
+        const html = document.documentElement;
+        const desktopIcon = document.getElementById('theme-icon');
+        const mobileIcon = document.getElementById('theme-icon-mobile');
+        
+        if (html.classList.contains('dark')) {
+            html.classList.remove('dark');
+            desktopIcon.innerText = 'dark_mode';
+            mobileIcon.innerText = 'dark_mode';
+            localStorage.setItem('theme', 'light');
+        } else {
+            html.classList.add('dark');
+            desktopIcon.innerText = 'light_mode';
+            mobileIcon.innerText = 'light_mode';
+            localStorage.setItem('theme', 'dark');
+        }
+    }
+
+    // Initialize Theme preference
+    if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+        document.getElementById('theme-icon').innerText = 'light_mode';
+        document.getElementById('theme-icon-mobile').innerText = 'light_mode';
+    }
+
+    // --- Service Modal Data & Logic ---
+    const serviceData = {
+        strategy: {
+            title: "Campaign Strategy",
+            desc: "We build a comprehensive 3-6 month roadmap tailored to your product launch cycles. This includes competitor analysis, creative briefing, platform selection (TikTok vs Reels vs YouTube), and KPI definition to ensure every dollar spent plants a seed for future growth."
+        },
+        curating: {
+            title: "Influencer Curating",
+            desc: "Our vetting process is rigorous. We don't just look at follower count; we analyze engagement rates, audience demographics, and brand safety. We find creators who genuinely love your niche, ensuring the content feels organic, not bought."
+        },
+        contract: {
+            title: "Contract & Negotiation",
+            desc: "Protect your brand with our legal-vetted templates. We handle usage rights, exclusivity clauses, and deliverables schedules. We negotiate fair rates based on market data, often saving our clients 20-30% compared to direct negotiations."
+        },
+        analysis: {
+            title: "Performance Analysis",
+            desc: "Post-campaign, we don't just send a PDF. We walk you through the data: Cost Per Acquisition (CPA), Return on Ad Spend (ROAS), and sentiment analysis. We identify which creators performed best to double-down on for the next season."
+        }
+    };
+
+    function openServiceModal(serviceKey) {
+        const data = serviceData[serviceKey];
+        if (!data) return;
+
+        document.getElementById('modal-title').innerText = data.title;
+        document.getElementById('modal-description').innerText = data.desc;
+        
+        const modal = document.getElementById('service-modal');
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+
+    function closeServiceModal() {
+        const modal = document.getElementById('service-modal');
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    // Close modal if clicking outside content
+    document.getElementById('service-modal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeServiceModal();
+        }
+    });
+
+    // --- Toast Notification System ---
+    function showToast(message, type = "success") {
+        const toast = document.getElementById('toast');
+        const msgEl = document.getElementById('toast-message');
+        const iconEl = document.getElementById('toast-icon');
+
+        msgEl.innerText = message;
+        
+        if (type === 'error') {
+            toast.classList.replace('border-secondary', 'border-red-500');
+            iconEl.innerText = 'error_outline';
+            iconEl.className = 'material-icons-outlined text-red-500';
+        } else {
+            toast.classList.replace('border-red-500', 'border-secondary');
+            iconEl.innerText = 'check_circle';
+            iconEl.className = 'material-icons-outlined text-green-600';
+        }
+
+        // Show
+        toast.classList.remove('translate-y-20', 'opacity-0');
+        
+        // Hide after 3 seconds
+        setTimeout(() => {
+            toast.classList.add('translate-y-20', 'opacity-0');
+        }, 3000);
+    }
+</script>
+
+</body>
+</html>
