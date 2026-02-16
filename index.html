@@ -3,7 +3,14 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    
+    <!-- ✅ FIXED: Professional Title & Description for Google -->
     <title>Dekoura | Influencer Marketing Agency</title>
+    <meta name="description" content="Dekoura is a boutique influencer marketing agency cultivating authentic connections. We specialize in lifestyle, wellness, and sustainable growth for brands and creators."/>
+    
+    <!-- ✅ FIXED: Your Tree Logo as the Browser Icon (Favicon) -->
+    <link rel="icon" href="https://lh3.googleusercontent.com/aida-public/AB6AXuCsapHPBfpT8vfF7Um4vX_8K4j3lbiLXl7X4Qpc_QKH_fo9Zv1JL4v6rycI-dwipfcZ_AAdsNuVQsUc1PFTkZeo0LJM4pLpfAtsIyS2loyo_9k3uC8uM97_KXLPvUpWGC2-UdvMSy0RYZs-nnU7X2AX_-Drez_Mn1YfuZv8S7bWy56D6lLIuEQwtEKvLz1od_SQuCxp93KsqV_Q_d5ZGBA25_YeyqQnAcEhS6iIzTPVxeLK9TrEGu6T-XMgRAndmUWXjw4zrNMMKxRN" />
+
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&amp;family=Lato:wght@300;400;700&amp;display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
@@ -77,9 +84,9 @@
         const form = document.getElementById('contact-form');
         const originalText = btn.innerText;
         
-        // 👇👇👇 CHANGE THIS TO YOUR REAL EMAIL 👇👇👇
-        const YOUR_EMAIL = "jalaldin@dekoura.com"; 
-        // 👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆
+        // 👇👇👇 CHANGE THIS TO YOUR REAL EMAIL AGAIN 👇👇👇
+        const YOUR_EMAIL = "YOUR_EMAIL@gmail.com"; 
+        // 👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆
 
         // UI Loading State
         btn.disabled = true;
@@ -182,7 +189,6 @@
     <div class="relative z-10 max-w-4xl px-6 flex flex-col items-center">
         <!-- Logo Image -->
         <div class="mb-8 w-48 h-48 md:w-64 md:h-64 relative animate-float">
-             <!-- Using a reliable placeholder if the original URL breaks, or stick to original if it works. I'll use a style to create a backup circle -->
              <div class="w-full h-full rounded-full bg-surface-light shadow-2xl flex items-center justify-center overflow-hidden border-4 border-white/50 dark:border-surface-dark/50">
                 <img 
                     alt="Dekoura Tree Logo Emblem" 
@@ -210,7 +216,7 @@
         </div>
     </div>
     
-    <!-- Arrow Fix: Changed from absolute positioning to full-width flex centering -->
+    <!-- Arrow Fix: Full-width flex centering -->
     <div class="absolute bottom-10 left-0 right-0 w-full flex justify-center animate-bounce text-primary dark:text-secondary z-20">
         <span class="material-icons-outlined text-3xl cursor-pointer" onclick="smoothScroll('mission')">arrow_downward</span>
     </div>
@@ -223,7 +229,7 @@
         <h2 class="font-display text-3xl md:text-4xl text-primary dark:text-white mb-8">Growth Through Authenticity</h2>
         <div class="h-1 w-20 bg-secondary mx-auto mb-10 rounded-full"></div>
         <p class="text-xl md:text-2xl text-gray-700 dark:text-gray-300 font-display italic leading-relaxed">
-            "At Dekoura, we believe influencer marketing isn't just about reach, it's about roots. We dig deep to understand your brand's core values, connecting you with creators who naturally align with your vision. We don't just chase trends; we build forests of loyal advocates."
+            "At Dekoura, we believe influencer marketing isn't just about reach—it's about roots. We dig deep to understand your brand's core values, connecting you with creators who naturally align with your vision. We don't just chase trends; we build forests of loyal advocates."
         </p>
     </div>
 </section>
@@ -245,7 +251,7 @@
                 </div>
                 <h3 class="font-display text-2xl text-primary dark:text-white mb-3">Niche Expertise</h3>
                 <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
-                    We don't do generic. We specialize in tech and lifestyle brands where authenticity is the currency. We know the soil these creators grow in.
+                    We don't do generic. We specialize in lifestyle, wellness, and sustainable brands where authenticity is the currency. We know the soil these creators grow in.
                 </p>
             </div>
             
@@ -376,7 +382,7 @@
                         </div>
                         <div class="flex items-center text-white/90">
                             <span class="material-icons-outlined mr-4 text-secondary">place</span>
-                            <span>Kampala,Uganda</span>
+                            <span>Kampala, Uganda</span>
                         </div>
                         <div class="flex items-center text-white/90">
                             <span class="material-icons-outlined mr-4 text-secondary">eco</span>
@@ -428,13 +434,9 @@
     <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center">
         <div class="mb-6 md:mb-0 text-center md:text-left">
             <span class="font-display text-2xl font-bold tracking-widest text-secondary block mb-2">DEKOURA</span>
-            <p class="text-gray-400 text-sm">© 2024 Dekoura Agency. All rights reserved.</p>
+            <p class="text-gray-400 text-sm">© 2025 Dekoura . All rights reserved.</p>
         </div>
-        <div class="flex space-x-6">
-            <a class="text-gray-400 hover:text-secondary transition-colors" href="#" aria-label="Facebook"><span class="material-icons-outlined">facebook</span></a>
-            <a class="text-gray-400 hover:text-secondary transition-colors" href="#" aria-label="Instagram"><span class="material-icons-outlined">camera_alt</span></a> 
-            <a class="text-gray-400 hover:text-secondary transition-colors" href="#" aria-label="LinkedIn"><span class="material-icons-outlined">work</span></a> 
-        </div>
+       
     </div>
 </footer>
 
